@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import svgPaths from "../imports/svg-9zz4bups76";
 import imgBarryHeadshotsMisslydiaphoto47 from "figma:asset/f38794277b68282e48c0f1fa2968cb07117406c5.png";
@@ -22,7 +22,17 @@ export default function App() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [isScrolled, setIsScrolled] = useState(false);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -116,13 +126,13 @@ export default function App() {
       backgroundSize: '24px 24px'
     }}>
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#e3dfed]/95 backdrop-blur-sm" style={{
+      <nav className={`fixed top-0 left-0 right-0 z-50 bg-[#e3dfed]/95 backdrop-blur-sm transition-all duration-300 ${isScrolled ? 'shadow-md' : ''}`} style={{
         backgroundImage: `radial-gradient(circle, rgba(23, 22, 23, 0.15) 1px, transparent 1px)`,
         backgroundSize: '24px 24px'
       }}>
-        <div className="max-w-[1200px] mx-auto px-[52px] py-[47px] flex items-center justify-between">
+        <div className={`max-w-[1200px] mx-auto px-[52px] flex items-center justify-between transition-all duration-300 ${isScrolled ? 'py-[23.5px]' : 'py-[47px]'}`}>
           {/* Logo */}
-          <div className="h-[87px] w-[78px]">
+          <div className={`transition-all duration-300 ${isScrolled ? 'h-[56.55px] w-[50.7px]' : 'h-[87px] w-[78px]'}`}>
             <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 78 87">
               <path d={svgPaths.p2889000} fill="#171617" />
             </svg>
@@ -131,7 +141,7 @@ export default function App() {
           {/* Navigation Links */}
           <div className="flex items-center gap-[24px]">
             <a
-              href="/resume.pdf"
+              href="https://drive.google.com/file/d/1hX3MTiuYAtmoNTTxzIND9REDPMAwJ_4Z/view?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
               className="font-['Rubik:Medium',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-opacity hover:opacity-70"
