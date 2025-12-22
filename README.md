@@ -1,7 +1,7 @@
 
-  # Barry Mackie-Conlon | Product Designer| UX Strategy, Accessibility & AI
+  # Barry Mackie-Conlon
 
-  This is a code bundle for Barry Mackie-Conlon | Product Designer| UX Strategy, Accessibility & AI. The original project is available at https://www.figma.com/design/38JwIBe7qjA5uVQ5lUVbwQ/Barry-Mackie-Conlon-%7C-Product-Designer%7C-UX-Strategy--Accessibility---AI.
+  This is a code bundle for Barry Mackie-Conlon. The original project is available at https://www.figma.com/design/38JwIBe7qjA5uVQ5lUVbwQ/Barry-Mackie-Conlon.
 
   ## Running the code
 
