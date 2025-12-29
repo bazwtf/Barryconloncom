@@ -3,7 +3,7 @@ import svgPaths from "../imports/svg-9zz4bups76";
 import imgBarryHeadshots from "@/assets/f38794277b68282e48c0f1fa2968cb07117406c5.png";
 
 // Google Apps Script endpoint
-const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxA6wHt7SLhXtIsU-tkC7uyo7_WfUNiJt3i1kM9CYEsyQRcRtzaD92LGgDco2tIC2q2pQ/exec";
+const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlQlDO3IzglbHL_gESH1uR3zUoY4wLcdcR7FyoRQtA9UbRRYRJR5vpit8Cs7MYYjloDA/exec";
 
 export default function App() {
   const [formData, setFormData] = useState({
