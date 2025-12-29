@@ -12,6 +12,7 @@ export default function App() {
     organisation: "",
     reason: "",
     message: "",
+    honeypot: "", // Honeypot field for bot detection
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -42,6 +43,12 @@ export default function App() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
+    // Check honeypot - if filled, it's a bot
+    if (formData.honeypot) {
+      newErrors.honeypot = "Bot detected";
+      return false;
+    }
+
     if (!formData.name.trim()) {
       newErrors.name = "Name is required";
     }
@@ -69,17 +76,30 @@ export default function App() {
 
     if (validateForm()) {
       setIsSubmitting(true);
+      setSubmitStatus('idle');
 
       try {
+        // Create URL-encoded form data for Google Apps Script
+        const formBody = new URLSearchParams({
+          name: formData.name,
+          email: formData.email,
+          organisation: formData.organisation,
+          enquiryType: formData.reason, // Map 'reason' to 'enquiryType' for Google Script
+          message: formData.message,
+        }).toString();
+
         const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
-          body: JSON.stringify(formData),
+          body: formBody,
+          redirect: 'follow', // Important for Google Apps Script
         });
 
-        if (response.ok) {
+        const result = await response.json();
+
+        if (result.success) {
           setSubmitStatus('success');
           // Reset form
           setFormData({
@@ -88,11 +108,14 @@ export default function App() {
             organisation: "",
             reason: "",
             message: "",
+            honeypot: "",
           });
         } else {
+          console.error('Server error:', result.error);
           setSubmitStatus('error');
         }
       } catch (error) {
+        console.error('Submit error:', error);
         setSubmitStatus('error');
       } finally {
         setIsSubmitting(false);
@@ -203,6 +226,19 @@ export default function App() {
 
           {/* Contact Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-[32px]">
+            {/* Honeypot field - hidden from users, only bots will fill it */}
+            <input
+              type="text"
+              name="honeypot"
+              value={formData.honeypot}
+              onChange={handleInputChange}
+              autoComplete="off"
+              tabIndex={-1}
+              aria-hidden="true"
+              className="absolute left-[-9999px]"
+              style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
+            />
+
             {/* Row 1: Name and Email */}
             <div className="flex gap-[32px]">
               <div className="flex-1">
@@ -210,7 +246,7 @@ export default function App() {
                   <span className="font-['Poppins:Regular',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Name
                   </span>
-                  <span className="font-['Inter:Medium',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
+                  <span className="font-['Poppins:Medium',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
                     *
                   </span>
                 </label>
@@ -232,7 +268,7 @@ export default function App() {
                   <span className="font-['Poppins:Regular',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Email
                   </span>
-                  <span className="font-['Inter:Medium',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
+                  <span className="font-['Poppins:Medium',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
                     *
                   </span>
                 </label>
@@ -273,7 +309,7 @@ export default function App() {
                   <span className="font-['Poppins:Regular',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Reason for Contact
                   </span>
-                  <span className="font-['Inter:Medium',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
+                  <span className="font-['Poppins:Medium',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
                     *
                   </span>
                 </label>
@@ -285,10 +321,10 @@ export default function App() {
                     className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins:Regular',sans-serif] text-[16px] leading-[24.8px] text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] appearance-none pr-[40px]"
                   >
                     <option value="">Select reason</option>
-                    <option value="hiring">Hiring Opportunity</option>
-                    <option value="collaboration">Collaboration</option>
-                    <option value="project">Project Inquiry</option>
-                    <option value="other">Other</option>
+                    <option value="Hiring Opportunity">Hiring Opportunity</option>
+                    <option value="Collaboration">Collaboration</option>
+                    <option value="Project Inquiry">Project Inquiry</option>
+                    <option value="Other">Other</option>
                   </select>
                   <div className="absolute right-[14px] top-1/2 -translate-y-1/2 pointer-events-none">
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -314,7 +350,7 @@ export default function App() {
                 <span className="font-['Poppins:Regular',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                   Message
                 </span>
-                <span className="font-['Inter:Semi_Bold',sans-serif] font-semibold text-[14px] leading-[20px] text-[#ec221f]">
+                <span className="font-['Poppins:Semi_Bold',sans-serif] font-semibold text-[14px] leading-[20px] text-[#ec221f]">
                   *
                 </span>
               </label>
@@ -337,7 +373,7 @@ export default function App() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="bg-[#e3ffa6] rounded-[8px] px-[16px] py-[10px] font-['Poppins:Medium',sans-serif] text-[16px] leading-[19.2px] tracking-[0.48px] text-[#171617] shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18),inset_0px_-2px_0px_0px_rgba(10,13,18,0.05),0px_1px_2px_0px_rgba(10,13,18,0.05)] transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="bg-[#e3ffa6] rounded-[8px] px-[16px] py-[10px] font-['Poppins:Medium',sans-serif] text-[16px] leading-[19.2px] tracking-[0.48px] text-[#171617] shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18),inset_0px_-2px_0px_0px_rgba(10,13,18,0.05),0px_1px_2px_0px_rgba(10,13,18,0.05)] transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Submitting...' : 'Send Message'}
