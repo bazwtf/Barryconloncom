@@ -152,13 +152,13 @@ export default function App() {
               href="https://drive.google.com/file/d/1hX3MTiuYAtmoNTTxzIND9REDPMAwJ_4Z/view?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-['Rubik:Medium',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-opacity hover:opacity-70"
+              className="font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-opacity hover:opacity-70"
             >
               Resume
             </a>
             <button
               onClick={scrollToContact}
-              className="bg-[#e3ffa6] px-[20px] py-[12px] rounded-[12px] font-['Rubik:Medium',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+              className="bg-[#e3ffa6] px-[20px] py-[12px] rounded-[12px] font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-transform hover:scale-105 active:scale-95 cursor-pointer"
             >
               Contact me
             </button>
@@ -171,11 +171,11 @@ export default function App() {
         <div className="flex gap-[60px] items-center">
           {/* Left Column - Content */}
           <div className="flex-1">
-            <h1 className="font-['Rubik:Bold',sans-serif] font-bold text-[56px] leading-[61.6px] tracking-[-1.12px] text-[#171617] mb-[24px] max-w-[630px]">
+            <h1 className="font-['Rubik',sans-serif] font-bold text-[56px] leading-[61.6px] tracking-[-1.12px] text-[#171617] mb-[24px] max-w-[630px]">
               Product Designer Who Simplifies the Complex
             </h1>
             
-            <p className="font-['Poppins:Regular',sans-serif] text-[20px] leading-[30px] text-[#171617] mb-[36px] max-w-[611px]">
+            <p className="font-['Poppins',sans-serif] text-[20px] leading-[30px] text-[#171617] mb-[36px] max-w-[611px]">
               Building accessible, user-centred products by connecting design, engineering, and business around what matters.
             </p>
 
@@ -194,7 +194,7 @@ export default function App() {
                   key={skill}
                   className="bg-[#e3ffa6] px-[12px] py-[12px] rounded-[12px]"
                 >
-                  <p className="font-['Poppins:Medium',sans-serif] text-[16px] leading-[19.748px] tracking-[0.48px] text-[#171617] whitespace-nowrap">
+                  <p className="font-['Poppins',sans-serif] text-[16px] leading-[19.748px] tracking-[0.48px] text-[#171617] whitespace-nowrap">
                     {skill}
                   </p>
                 </div>
@@ -216,11 +216,11 @@ export default function App() {
       {/* Contact Section */}
       <div id="contact" className="max-w-[1200px] mx-auto px-[52px] pb-[100px]">
         <div className="bg-[#f2edff] rounded-[16px] px-[200px] py-[100px]">
-          <h2 className="font-['Rubik:Bold',sans-serif] font-bold text-[45px] leading-[51.75px] tracking-[-0.9px] text-[#171617] text-center mb-[25px]">
+          <h2 className="font-['Rubik',sans-serif] font-bold text-[45px] leading-[51.75px] tracking-[-0.9px] text-[#171617] text-center mb-[25px]">
             Let's Work Together
           </h2>
           
-          <p className="font-['Poppins:Regular',sans-serif] text-[20px] leading-[30px] text-[#171617] mb-[25px]">
+          <p className="font-['Poppins',sans-serif] text-[20px] leading-[30px] text-[#171617] mb-[25px]">
             If you're hiring, exploring a collaboration, or have a project in mind, I'd love to hear from you. Send a message and I'll respond as soon as possible.
           </p>
 
@@ -243,10 +243,10 @@ export default function App() {
             <div className="flex gap-[32px]">
               <div className="flex-1">
                 <label className="flex gap-[2px] items-start mb-[6px]">
-                  <span className="font-['Poppins:Regular',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
+                  <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Name
                   </span>
-                  <span className="font-['Poppins:Medium',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
+                  <span className="font-['Poppins',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
                     *
                   </span>
                 </label>
@@ -255,7 +255,7 @@ export default function App() {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins:Regular',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
+                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
                   placeholder=""
                 />
                 {errors.name && (
@@ -265,10 +265,10 @@ export default function App() {
 
               <div className="flex-1">
                 <label className="flex gap-[2px] items-start mb-[6px]">
-                  <span className="font-['Poppins:Regular',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
+                  <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Email
                   </span>
-                  <span className="font-['Poppins:Medium',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
+                  <span className="font-['Poppins',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
                     *
                   </span>
                 </label>
@@ -277,7 +277,7 @@ export default function App() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins:Regular',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
+                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
                   placeholder=""
                 />
                 {errors.email && (
@@ -290,7 +290,7 @@ export default function App() {
             <div className="flex gap-[32px]">
               <div className="flex-1">
                 <label className="flex gap-[2px] items-start mb-[6px]">
-                  <span className="font-['Poppins:Regular',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
+                  <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Organisation
                   </span>
                 </label>
@@ -299,17 +299,17 @@ export default function App() {
                   name="organisation"
                   value={formData.organisation}
                   onChange={handleInputChange}
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins:Regular',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
+                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
                   placeholder=" "
                 />
               </div>
 
               <div className="flex-1">
                 <label className="flex gap-[2px] items-center mb-[6px]">
-                  <span className="font-['Poppins:Regular',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
+                  <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Reason for Contact
                   </span>
-                  <span className="font-['Poppins:Medium',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
+                  <span className="font-['Poppins',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
                     *
                   </span>
                 </label>
@@ -318,7 +318,7 @@ export default function App() {
                     name="reason"
                     value={formData.reason}
                     onChange={handleInputChange}
-                    className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins:Regular',sans-serif] text-[16px] leading-[24.8px] text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] appearance-none pr-[40px]"
+                    className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] appearance-none pr-[40px]"
                   >
                     <option value="">Select reason</option>
                     <option value="Hiring Opportunity">Hiring Opportunity</option>
@@ -347,7 +347,7 @@ export default function App() {
             {/* Row 3: Message */}
             <div>
               <label className="flex gap-[2px] items-center mb-[6px]">
-                <span className="font-['Poppins:Regular',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
+                <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                   Message
                 </span>
                 <span className="font-['Poppins:Semi_Bold',sans-serif] font-semibold text-[14px] leading-[20px] text-[#ec221f]">
@@ -360,7 +360,7 @@ export default function App() {
                   value={formData.message}
                   onChange={handleInputChange}
                   rows={6}
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[12px] font-['Poppins:Regular',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] resize-y"
+                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[12px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] resize-y"
                   placeholder=" "
                 />
               
@@ -373,7 +373,7 @@ export default function App() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="bg-[#e3ffa6] rounded-[8px] px-[16px] py-[10px] font-['Poppins:Medium',sans-serif] text-[16px] leading-[19.2px] tracking-[0.48px] text-[#171617] shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18),inset_0px_-2px_0px_0px_rgba(10,13,18,0.05),0px_1px_2px_0px_rgba(10,13,18,0.05)] transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-[#e3ffa6] rounded-[8px] px-[16px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[19.2px] tracking-[0.48px] text-[#171617] shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18),inset_0px_-2px_0px_0px_rgba(10,13,18,0.05),0px_1px_2px_0px_rgba(10,13,18,0.05)] transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Submitting...' : 'Send Message'}
@@ -392,7 +392,7 @@ export default function App() {
 
       {/* Footer */}
       <div className="max-w-[1200px] mx-auto px-[52px] pb-[50px]">
-        <p className="font-['Poppins:Regular',sans-serif] text-[14px] leading-[21.7px] text-[#171617]">
+        <p className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#171617]">
           ©️ Barry Conlon 2025.
         </p>
       </div>
