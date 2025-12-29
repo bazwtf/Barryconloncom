@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import svgPaths from "../imports/svg-9zz4bups76";
-import someImage from "@/assets/images/f38794277b68282e48c0f1fa2968cb07117406c5.png";
+import imgBarryHeadshots from "@/assets/f38794277b68282e48c0f1fa2968cb07117406c5.png";
 
 // Google Apps Script endpoint
 const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxA6wHt7SLhXtIsU-tkC7uyo7_WfUNiJt3i1kM9CYEsyQRcRtzaD92LGgDco2tIC2q2pQ/exec";
@@ -182,7 +182,7 @@ export default function App() {
           {/* Right Column - Headshot */}
           <div className="w-[419px] h-[539px] rounded-[16px] overflow-hidden shrink-0">
             <img
-              src={imgBarryHeadshotsMisslydiaphoto47}
+              src={imgBarryHeadshots}
               alt="Barry Conlon - Product Designer"
               className="w-full h-[116.56%] object-cover object-center translate-y-[-16.56%] rounded-[16px]"
             />
