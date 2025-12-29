@@ -184,7 +184,7 @@ export default function App() {
             <img
               src={imgBarryHeadshots}
               alt="Barry Conlon - Product Designer"
-              className="w-full h-[116.56%] object-cover object-center translate-y-[-16.56%] rounded-[16px]"
+              className="w-full h-[116.56%] object-cover object-center translate-y-[0] rounded-[16px]"
             />
           </div>
         </div>
