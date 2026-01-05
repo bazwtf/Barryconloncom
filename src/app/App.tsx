@@ -83,6 +83,10 @@ export default function App() {
   const contactHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const firstFieldRef = useRef<HTMLInputElement | null>(null);
 
+  // New: summary + success focus targets
+  const errorSummaryRef = useRef<HTMLDivElement | null>(null);
+  const successMessageRef = useRef<HTMLParagraphElement | null>(null);
+
   const ids = useMemo(() => {
     // Generate stable, unique ids per render tree
     return {
@@ -131,14 +135,52 @@ export default function App() {
     clearFieldError(fieldName);
   };
 
-  const focusFirstError = (nextErrors: FieldErrors) => {
-    const order: FieldName[] = ["name", "email", "reason", "message"];
-    const first = order.find((k) => nextErrors[k]);
-    if (!first) return;
+  const scrollToContact = () => {
+    const contactSection = document.getElementById("contact");
+    contactSection?.scrollIntoView({ behavior: "smooth" });
 
-    const el = document.getElementById(ids[first]);
-    if (el instanceof HTMLElement) el.focus();
+    // After scrolling, move focus to heading or first field for keyboard users.
+    window.setTimeout(() => {
+      (contactHeadingRef.current ?? firstFieldRef.current)?.focus();
+    }, 350);
   };
+
+  // New: error ordering and summary list for WCAG-friendly navigation
+  const errorOrder: FieldName[] = ["name", "email", "reason", "message"];
+
+  const errorSummaryItems = useMemo(() => {
+    const items = errorOrder
+      .map((field) => {
+        const message = errors[field];
+        if (!message) return null;
+
+        const label =
+          field === "name"
+            ? "Name"
+            : field === "email"
+            ? "Email"
+            : field === "reason"
+            ? "Reason for contact"
+            : field === "message"
+            ? "Message"
+            : field;
+
+        return {
+          field,
+          label,
+          message,
+          targetId: ids[field as keyof typeof ids] as string,
+        };
+      })
+      .filter(Boolean) as Array<{
+      field: FieldName;
+      label: string;
+      message: string;
+      targetId: string;
+    }>;
+
+    return items;
+  }, [errors, ids]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,7 +190,9 @@ export default function App() {
 
     if (!ok) {
       setSubmitStatus("idle");
-      focusFirstError(nextErrors);
+      window.requestAnimationFrame(() => {
+        errorSummaryRef.current?.focus();
+      });
       return;
     }
 
@@ -171,10 +215,9 @@ export default function App() {
         setSubmitStatus("success");
         setFormData(INITIAL_FORM);
         setErrors({});
-        // Put focus on the status message for SR users
+
         window.requestAnimationFrame(() => {
-          const statusEl = document.getElementById(ids.status);
-          if (statusEl instanceof HTMLElement) statusEl.focus();
+          successMessageRef.current?.focus();
         });
       } else {
         console.error("Server error:", result?.error);
@@ -187,19 +230,6 @@ export default function App() {
       setIsSubmitting(false);
     }
   };
-
-  const scrollToContact = () => {
-    const contactSection = document.getElementById("contact");
-    contactSection?.scrollIntoView({ behavior: "smooth" });
-
-    // After scrolling, move focus to heading or first field for keyboard users.
-    window.setTimeout(() => {
-      (contactHeadingRef.current ?? firstFieldRef.current)?.focus();
-    }, 350);
-  };
-
-  const showErrorSummary =
-    Object.values(errors).filter(Boolean).length > 0 && submitStatus !== "success";
 
   return (
     <div
@@ -316,7 +346,10 @@ export default function App() {
       </main>
 
       {/* Contact Section */}
-      <section id="contact" className="max-w-[1200px] mx-auto px-[52px] pb-[100px]">
+      <section
+        id="contact"
+        className="max-w-[1200px] mx-auto px-[52px] pb-[100px]"
+      >
         <div className="bg-[#f2edff] rounded-[16px] px-[200px] py-[100px]">
           <h2
             id={ids.contactHeading}
@@ -333,7 +366,7 @@ export default function App() {
             as soon as possible.
           </p>
 
-          {/* Status region (focusable for SR announcement after submit) */}
+          {/* Screen-reader status region (keep) */}
           <div
             id={ids.status}
             tabIndex={-1}
@@ -348,7 +381,6 @@ export default function App() {
               : ""}
           </div>
 
-          {/* Contact Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-[32px]" noValidate>
             {/* Honeypot: hidden in a way that avoids AT/keyboard */}
             <div hidden>
@@ -364,16 +396,43 @@ export default function App() {
               />
             </div>
 
-            {/* Error summary (optional but helpful) */}
-            {showErrorSummary && (
+            {/* Error summary with links */}
+            {errorSummaryItems.length > 0 && submitStatus !== "success" && (
               <div
-                id={ids.errorSummary}
+                ref={errorSummaryRef}
+                tabIndex={-1}
                 role="alert"
-                className="border border-[#ec221f]/30 bg-white rounded-[8px] p-[12px]"
+                aria-labelledby={`${ids.errorSummary}-title`}
+                className="border border-[#ec221f]/30 bg-white rounded-[12px] p-[16px]"
               >
-                <p className="font-['Poppins',sans-serif] text-[14px] text-[#171617]">
-                  Please fix the highlighted fields below.
+                <p
+                  id={`${ids.errorSummary}-title`}
+                  className="font-['Poppins',sans-serif] text-[16px] leading-[24px] text-[#171617] mb-[8px]"
+                >
+                  Please correct the following:
                 </p>
+
+                <ul className="list-disc pl-[20px] space-y-[6px]">
+                  {errorSummaryItems.map((item) => (
+                    <li
+                      key={item.field}
+                      className="font-['Poppins',sans-serif] text-[14px] text-[#171617]"
+                    >
+                      <a
+                        href={`#${item.targetId}`}
+                        className="underline focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] rounded-[6px]"
+                        onClick={(ev) => {
+                          ev.preventDefault();
+                          const el = document.getElementById(item.targetId);
+                          if (el instanceof HTMLElement) el.focus();
+                        }}
+                      >
+                        {item.label}:
+                      </a>{" "}
+                      <span className="text-[#ec221f]">{item.message}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
@@ -395,9 +454,12 @@ export default function App() {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
+                  required
+                  disabled={isSubmitting}
+                  autoComplete="name"
                   aria-invalid={Boolean(errors.name)}
                   aria-describedby={errors.name ? `${ids.name}-error` : undefined}
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
+                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] disabled:opacity-60"
                 />
                 {errors.name && (
                   <p id={`${ids.name}-error`} className="mt-[4px] text-[12px] text-[#ec221f]">
@@ -421,11 +483,13 @@ export default function App() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
+                  required
+                  disabled={isSubmitting}
                   autoComplete="email"
                   inputMode="email"
                   aria-invalid={Boolean(errors.email)}
                   aria-describedby={errors.email ? `${ids.email}-error` : undefined}
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
+                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] disabled:opacity-60"
                 />
                 {errors.email && (
                   <p id={`${ids.email}-error`} className="mt-[4px] text-[12px] text-[#ec221f]">
@@ -435,7 +499,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Row 2: Organisation and Reason for Contact */}
+            {/* Row 2: Organisation and Reason */}
             <div className="flex gap-[32px]">
               <div className="flex-1">
                 <label
@@ -452,8 +516,9 @@ export default function App() {
                   name="organisation"
                   value={formData.organisation}
                   onChange={handleInputChange}
+                  disabled={isSubmitting}
                   autoComplete="organization"
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
+                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] disabled:opacity-60"
                 />
               </div>
 
@@ -472,9 +537,12 @@ export default function App() {
                     name="reason"
                     value={formData.reason}
                     onChange={handleInputChange}
+                    required
+                    disabled={isSubmitting}
                     aria-invalid={Boolean(errors.reason)}
                     aria-describedby={errors.reason ? `${ids.reason}-error` : undefined}
-                    className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] appearance-none pr-[40px]"
+                    className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] appearance-none pr-[40px] disabled:opacity-60"
+                    style={{ color: formData.reason ? "#171617" : "#717680" }}
                   >
                     <option value="">Select reason</option>
                     <option value="Hiring Opportunity">Hiring Opportunity</option>
@@ -518,9 +586,11 @@ export default function App() {
                 value={formData.message}
                 onChange={handleInputChange}
                 rows={6}
+                required
+                disabled={isSubmitting}
                 aria-invalid={Boolean(errors.message)}
                 aria-describedby={errors.message ? `${ids.message}-error` : undefined}
-                className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[12px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] resize-y"
+                className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[12px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] resize-y disabled:opacity-60"
               />
               {errors.message && (
                 <p id={`${ids.message}-error`} className="mt-[4px] text-[12px] text-[#ec221f]">
@@ -541,12 +611,18 @@ export default function App() {
 
             {/* Visible Submit Status */}
             {submitStatus === "success" && (
-              <p className="mt-[10px] text-[16px] text-[#4CAF50]">
+              <p
+                ref={successMessageRef}
+                tabIndex={-1}
+                role="status"
+                aria-live="polite"
+                className="mt-[10px] text-[16px] text-[#4CAF50]"
+              >
                 Thank you for your message! I&apos;ll get back to you soon.
               </p>
             )}
             {submitStatus === "error" && (
-              <p className="mt-[10px] text-[16px] text-[#ec221f]">
+              <p role="alert" className="mt-[10px] text-[16px] text-[#ec221f]">
                 There was an error submitting your message. Please try again.
               </p>
             )}
