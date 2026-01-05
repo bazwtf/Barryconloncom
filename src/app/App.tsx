@@ -101,22 +101,30 @@ export default function App() {
     };
   }, [reactId]);
 
-  useEffect(() => {
-    let ticking = false;
+  const FOCUS_RING =
+    "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#e3ffa6] focus-visible:ring-offset-2 focus-visible:ring-offset-[#e3dfed] rounded-[8px]";
 
-    const handleScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        setIsScrolled(window.scrollY > 50);
-        ticking = false;
-      });
+  const FOCUS_RING_DARK =
+    "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#171617]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#e3dfed] rounded-[12px]";
+
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsMobileMenuOpen(false);
+        window.requestAnimationFrame(() => mobileMenuButtonRef.current?.focus());
+      }
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // initialize
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isMobileMenuOpen]);
+
 
   const clearFieldError = (name: FieldName) => {
     if (!errors[name]) return;
@@ -137,7 +145,12 @@ export default function App() {
 
   const scrollToContact = () => {
     const contactSection = document.getElementById("contact");
-    contactSection?.scrollIntoView({ behavior: "smooth" });
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    contactSection?.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" });
 
     // After scrolling, move focus to heading or first field for keyboard users.
     window.setTimeout(() => {
@@ -240,6 +253,14 @@ export default function App() {
         backgroundSize: "24px 24px",
       }}
     >
+      {/* Skip Links */}
+      <a
+        href="#main"
+        className={`sr-only focus:not-sr-only focus:fixed focus:top-[12px] focus:left-[12px] z-[100] bg-white text-[#171617] px-[12px] py-[10px] shadow-md ${FOCUS_RING}`}
+      >
+        Skip to main content
+      </a>
+
       {/* Navigation */}
       <nav
         className={`main-navigation fixed top-0 left-0 right-0 z-50 bg-[#e3dfed]/95 backdrop-blur-sm transition-all duration-300 ${
@@ -253,14 +274,16 @@ export default function App() {
         aria-label="Primary"
       >
         <div
-          className={`max-w-[1200px] mx-auto px-[52px] flex items-center justify-between transition-all duration-300 ${
-            isScrolled ? "py-[23.5px]" : "py-[47px]"
+          className={`max-w-[1200px] mx-auto px-[20px] sm:px-[52px] flex items-center justify-between transition-all duration-300 ${
+            isScrolled ? "py-[18px] sm:py-[23.5px]" : "py-[22px] sm:py-[47px]"
           }`}
         >
           {/* Logo */}
           <div
             className={`transition-all duration-300 ${
-              isScrolled ? "h-[56.55px] w-[50.7px]" : "h-[87px] w-[78px]"
+              isScrolled
+                ? "h-[44px] w-[40px] sm:h-[56.55px] sm:w-[50.7px]"
+                : "h-[52px] w-[46px] sm:h-[87px] sm:w-[78px]"
             }`}
             aria-hidden="true"
           >
@@ -274,29 +297,147 @@ export default function App() {
             </svg>
           </div>
 
-          {/* Navigation Links */}
-          <div className="nav-item flex items-center gap-[24px]">
+          {/* Desktop links */}
+          <div className="hidden sm:flex items-center gap-[24px]">
             <a
               href="https://drive.google.com/file/d/1hX3MTiuYAtmoNTTxzIND9REDPMAwJ_4Z/view?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-opacity hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] rounded-[8px]"
+              className={`font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-opacity hover:opacity-70 ${FOCUS_RING}`}
             >
               Resume
             </a>
+
             <button
               type="button"
-              onClick={scrollToContact}
-              className="nav-button bg-[#e3ffa6] px-[20px] py-[12px] rounded-[12px] font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-transform hover:scale-105 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#171617]/30"
+              onClick={() => {
+                scrollToContact();
+                setIsMobileMenuOpen(false);
+              }}
+              className={`bg-[#e3ffa6] px-[20px] py-[12px] rounded-[12px] font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-transform hover:scale-105 active:scale-95 cursor-pointer ${FOCUS_RING_DARK}`}
             >
               Contact me
             </button>
           </div>
+
+          {/* Mobile menu button */}
+          <button
+            ref={mobileMenuButtonRef}
+            type="button"
+            className={`sm:hidden inline-flex items-center justify-center h-[44px] w-[44px] ${FOCUS_RING_DARK}`}
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
+            onClick={() => setIsMobileMenuOpen((v) => !v)}
+          >
+            {/* Simple hamburger / close icon */}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              {isMobileMenuOpen ? (
+                <path
+                  d="M6 6L18 18M18 6L6 18"
+                  stroke="#171617"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              ) : (
+                <path
+                  d="M4 7H20M4 12H20M4 17H20"
+                  stroke="#171617"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="sm:hidden fixed inset-0 z-50"
+            role="presentation"
+            aria-hidden="true"
+          >
+            {/* Backdrop */}
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/30"
+              onClick={() => setIsMobileMenuOpen(false)}
+              aria-label="Close menu backdrop"
+            />
+
+            {/* Panel */}
+            <div
+              id="mobile-menu"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Mobile navigation"
+              className="absolute top-0 right-0 h-full w-[86%] max-w-[360px] bg-[#e3dfed] shadow-xl p-[20px] flex flex-col gap-[16px]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle, rgba(23, 22, 23, 0.15) 1px, transparent 1px)",
+                backgroundSize: "24px 24px",
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-['Rubik',sans-serif] font-medium text-[#171617] text-[16px] uppercase">
+                  Menu
+                </span>
+                <button
+                  type="button"
+                  className={`h-[44px] w-[44px] inline-flex items-center justify-center ${FOCUS_RING_DARK}`}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    window.requestAnimationFrame(() => mobileMenuButtonRef.current?.focus());
+                  }}
+                  aria-label="Close menu"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M6 6L18 18M18 6L6 18"
+                      stroke="#171617"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              <a
+                href="https://drive.google.com/file/d/1hX3MTiuYAtmoNTTxzIND9REDPMAwJ_4Z/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`font-['Rubik',sans-serif] font-medium text-[#171617] text-[18px] uppercase px-[12px] py-[10px] bg-white/60 rounded-[12px] ${FOCUS_RING}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Resume
+              </a>
+
+              <button
+                type="button"
+                onClick={() => {
+                  scrollToContact();
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`bg-[#e3ffa6] px-[12px] py-[12px] rounded-[12px] font-['Rubik',sans-serif] font-medium text-[#171617] text-[18px] uppercase transition-transform active:scale-95 cursor-pointer ${FOCUS_RING_DARK}`}
+              >
+                Contact me
+              </button>
+
+              <div className="mt-auto text-[12px] text-[#171617]/70">
+                Press Escape to close.
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
-      <main className="hero max-w-[1200px] mx-auto px-[52px] pt-[240px] pb-[100px]">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="hero max-w-[1200px] mx-auto px-[52px] pt-[240px] pb-[100px]"
+      >
         <div className="flex gap-[60px] items-center">
           {/* Left Column - Content */}
           <div className="flex-1">
