@@ -1,164 +1,263 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import svgPaths from "../imports/svg-9zz4bups76";
 import imgBarryHeadshots from "@/assets/f38794277b68282e48c0f1fa2968cb07117406c5.png";
 
 // Google Apps Script endpoint
-const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlQlDO3IzglbHL_gESH1uR3zUoY4wLcdcR7FyoRQtA9UbRRYRJR5vpit8Cs7MYYjloDA/exec";
+const GOOGLE_APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbxlQlDO3IzglbHL_gESH1uR3zUoY4wLcdcR7FyoRQtA9UbRRYRJR5vpit8Cs7MYYjloDA/exec";
+
+type EnquiryReason =
+  | ""
+  | "Hiring Opportunity"
+  | "Collaboration"
+  | "Project Inquiry"
+  | "Other";
+
+type FormData = {
+  name: string;
+  email: string;
+  organisation: string;
+  reason: EnquiryReason;
+  message: string;
+  honeypot: string;
+};
+
+type FieldName = keyof FormData;
+
+type FieldErrors = Partial<Record<FieldName, string>>;
+
+type SubmitStatus = "idle" | "success" | "error";
+
+const INITIAL_FORM: FormData = {
+  name: "",
+  email: "",
+  organisation: "",
+  reason: "",
+  message: "",
+  honeypot: "",
+};
+
+function validate(formData: FormData): { ok: boolean; errors: FieldErrors } {
+  const errors: FieldErrors = {};
+
+  // Honeypot: if filled, treat as bot. Avoid revealing this in UI.
+  if (formData.honeypot) {
+    errors.honeypot = "Bot detected";
+    return { ok: false, errors };
+  }
+
+  if (!formData.name.trim()) errors.name = "Name is required";
+
+  if (!formData.email.trim()) {
+    errors.email = "Email is required";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    errors.email = "Please enter a valid email";
+  }
+
+  if (!formData.reason) errors.reason = "Please select a reason for contact";
+  if (!formData.message.trim()) errors.message = "Message is required";
+
+  return { ok: Object.keys(errors).length === 0, errors };
+}
+
+function toUrlEncodedBody(formData: FormData): string {
+  // Map 'reason' to 'enquiryType' for Google Script
+  return new URLSearchParams({
+    name: formData.name,
+    email: formData.email,
+    organisation: formData.organisation,
+    enquiryType: formData.reason,
+    message: formData.message,
+  }).toString();
+}
 
 export default function App() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    organisation: "",
-    reason: "",
-    message: "",
-    honeypot: "", // Honeypot field for bot detection
-  });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState<FormData>(INITIAL_FORM);
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
   const [isScrolled, setIsScrolled] = useState(false);
 
+  // Used for stable ids and focus management
+  const reactId = useId();
+  const contactHeadingRef = useRef<HTMLHeadingElement | null>(null);
+  const firstFieldRef = useRef<HTMLInputElement | null>(null);
+
+  const ids = useMemo(() => {
+    // Generate stable, unique ids per render tree
+    return {
+      name: `name-${reactId}`,
+      email: `email-${reactId}`,
+      organisation: `organisation-${reactId}`,
+      reason: `reason-${reactId}`,
+      message: `message-${reactId}`,
+      status: `form-status-${reactId}`,
+      errorSummary: `error-summary-${reactId}`,
+      contactHeading: `contact-heading-${reactId}`,
+    };
+  }, [reactId]);
+
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        setIsScrolled(window.scrollY > 50);
+        ticking = false;
+      });
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // initialize
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
+  const clearFieldError = (name: FieldName) => {
+    if (!errors[name]) return;
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    const fieldName = name as FieldName;
 
-    // Check honeypot - if filled, it's a bot
-    if (formData.honeypot) {
-      newErrors.honeypot = "Bot detected";
-      return false;
-    }
+    setFormData((prev) => ({ ...prev, [fieldName]: value }));
+    clearFieldError(fieldName);
+  };
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
-    }
+  const focusFirstError = (nextErrors: FieldErrors) => {
+    const order: FieldName[] = ["name", "email", "reason", "message"];
+    const first = order.find((k) => nextErrors[k]);
+    if (!first) return;
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
-    }
-
-    if (!formData.reason) {
-      newErrors.reason = "Please select a reason for contact";
-    }
-
-    if (!formData.message.trim()) {
-      newErrors.message = "Message is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const el = document.getElementById(ids[first]);
+    if (el instanceof HTMLElement) el.focus();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (validateForm()) {
-      setIsSubmitting(true);
-      setSubmitStatus('idle');
+    const { ok, errors: nextErrors } = validate(formData);
+    setErrors(nextErrors);
 
-      try {
-        // Create URL-encoded form data for Google Apps Script
-        const formBody = new URLSearchParams({
-          name: formData.name,
-          email: formData.email,
-          organisation: formData.organisation,
-          enquiryType: formData.reason, // Map 'reason' to 'enquiryType' for Google Script
-          message: formData.message,
-        }).toString();
+    if (!ok) {
+      setSubmitStatus("idle");
+      focusFirstError(nextErrors);
+      return;
+    }
 
-        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: formBody,
-          redirect: 'follow', // Important for Google Apps Script
+    setIsSubmitting(true);
+    setSubmitStatus("idle");
+
+    try {
+      const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: toUrlEncodedBody(formData),
+        redirect: "follow",
+      });
+
+      const result = await response.json();
+
+      if (result?.success) {
+        setSubmitStatus("success");
+        setFormData(INITIAL_FORM);
+        setErrors({});
+        // Put focus on the status message for SR users
+        window.requestAnimationFrame(() => {
+          const statusEl = document.getElementById(ids.status);
+          if (statusEl instanceof HTMLElement) statusEl.focus();
         });
-
-        const result = await response.json();
-
-        if (result.success) {
-          setSubmitStatus('success');
-          // Reset form
-          setFormData({
-            name: "",
-            email: "",
-            organisation: "",
-            reason: "",
-            message: "",
-            honeypot: "",
-          });
-        } else {
-          console.error('Server error:', result.error);
-          setSubmitStatus('error');
-        }
-      } catch (error) {
-        console.error('Submit error:', error);
-        setSubmitStatus('error');
-      } finally {
-        setIsSubmitting(false);
+      } else {
+        console.error("Server error:", result?.error);
+        setSubmitStatus("error");
       }
+    } catch (error) {
+      console.error("Submit error:", error);
+      setSubmitStatus("error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const scrollToContact = () => {
     const contactSection = document.getElementById("contact");
     contactSection?.scrollIntoView({ behavior: "smooth" });
+
+    // After scrolling, move focus to heading or first field for keyboard users.
+    window.setTimeout(() => {
+      (contactHeadingRef.current ?? firstFieldRef.current)?.focus();
+    }, 350);
   };
 
+  const showErrorSummary =
+    Object.values(errors).filter(Boolean).length > 0 && submitStatus !== "success";
+
   return (
-    <div className="bg-[#e3dfed] min-h-screen relative" style={{
-      backgroundImage: `radial-gradient(circle, rgba(23, 22, 23, 0.15) 1px, transparent 1px)`,
-      backgroundSize: '24px 24px'
-    }}>
+    <div
+      className="bg-[#e3dfed] min-h-screen relative"
+      style={{
+        backgroundImage:
+          "radial-gradient(circle, rgba(23, 22, 23, 0.15) 1px, transparent 1px)",
+        backgroundSize: "24px 24px",
+      }}
+    >
       {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 bg-[#e3dfed]/95 backdrop-blur-sm transition-all duration-300 ${isScrolled ? 'shadow-md' : ''}`} style={{
-        backgroundImage: `radial-gradient(circle, rgba(23, 22, 23, 0.15) 1px, transparent 1px)`,
-        backgroundSize: '24px 24px'
-      }}>
-        <div className={`max-w-[1200px] mx-auto px-[52px] flex items-center justify-between transition-all duration-300 ${isScrolled ? 'py-[23.5px]' : 'py-[47px]'}`}>
+      <nav
+        className={`main-navigation fixed top-0 left-0 right-0 z-50 bg-[#e3dfed]/95 backdrop-blur-sm transition-all duration-300 ${
+          isScrolled ? "shadow-md" : ""
+        }`}
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, rgba(23, 22, 23, 0.15) 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+        }}
+        aria-label="Primary"
+      >
+        <div
+          className={`max-w-[1200px] mx-auto px-[52px] flex items-center justify-between transition-all duration-300 ${
+            isScrolled ? "py-[23.5px]" : "py-[47px]"
+          }`}
+        >
           {/* Logo */}
-          <div className={`transition-all duration-300 ${isScrolled ? 'h-[56.55px] w-[50.7px]' : 'h-[87px] w-[78px]'}`}>
-            <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 78 87">
+          <div
+            className={`transition-all duration-300 ${
+              isScrolled ? "h-[56.55px] w-[50.7px]" : "h-[87px] w-[78px]"
+            }`}
+            aria-hidden="true"
+          >
+            <svg
+              className="block size-full"
+              fill="none"
+              preserveAspectRatio="none"
+              viewBox="0 0 78 87"
+            >
               <path d={svgPaths.p2889000} fill="#171617" />
             </svg>
           </div>
 
           {/* Navigation Links */}
-          <div className="flex items-center gap-[24px]">
+          <div className="nav-item flex items-center gap-[24px]">
             <a
               href="https://drive.google.com/file/d/1hX3MTiuYAtmoNTTxzIND9REDPMAwJ_4Z/view?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-opacity hover:opacity-70"
+              className="font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-opacity hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] rounded-[8px]"
             >
               Resume
             </a>
             <button
+              type="button"
               onClick={scrollToContact}
-              className="bg-[#e3ffa6] px-[20px] py-[12px] rounded-[12px] font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+              className="nav-button bg-[#e3ffa6] px-[20px] py-[12px] rounded-[12px] font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-transform hover:scale-105 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#171617]/30"
             >
               Contact me
             </button>
@@ -167,20 +266,21 @@ export default function App() {
       </nav>
 
       {/* Hero Section */}
-      <div className="max-w-[1200px] mx-auto px-[52px] pt-[240px] pb-[100px]">
+      <main className="hero max-w-[1200px] mx-auto px-[52px] pt-[240px] pb-[100px]">
         <div className="flex gap-[60px] items-center">
           {/* Left Column - Content */}
           <div className="flex-1">
             <h1 className="font-['Rubik',sans-serif] font-bold text-[56px] leading-[61.6px] tracking-[-1.12px] text-[#171617] mb-[24px] max-w-[630px]">
               Product Designer Who Simplifies the Complex
             </h1>
-            
+
             <p className="font-['Poppins',sans-serif] text-[20px] leading-[30px] text-[#171617] mb-[36px] max-w-[611px]">
-              Building accessible, user-centred products by connecting design, engineering, and business around what matters.
+              Building accessible, user-centred products by connecting design,
+              engineering, and business around what matters.
             </p>
 
             {/* Skills Tags */}
-            <div className="flex flex-wrap gap-[18px] max-w-[611px]">
+            <ul className="tag-list flex flex-wrap gap-[18px] max-w-[611px]">
               {[
                 "A11y Consultant",
                 "Agile Methodologies",
@@ -190,16 +290,16 @@ export default function App() {
                 "UX Research",
                 "Workshop Facilitation",
               ].map((skill) => (
-                <div
+                <li
                   key={skill}
                   className="bg-[#e3ffa6] px-[12px] py-[12px] rounded-[12px]"
                 >
-                  <p className="font-['Poppins',sans-serif] text-[16px] leading-[19.748px] tracking-[0.48px] text-[#171617] whitespace-nowrap">
+                  <span className="font-['Poppins',sans-serif] text-[16px] leading-[19.748px] tracking-[0.48px] text-[#171617] whitespace-nowrap">
                     {skill}
-                  </p>
-                </div>
+                  </span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           {/* Right Column - Headshot */}
@@ -208,41 +308,79 @@ export default function App() {
               src={imgBarryHeadshots}
               alt="Barry Conlon - Product Designer"
               className="w-full h-[116.56%] object-cover object-center translate-y-[0] rounded-[16px]"
+              loading="lazy"
+              decoding="async"
             />
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Contact Section */}
-      <div id="contact" className="max-w-[1200px] mx-auto px-[52px] pb-[100px]">
+      <section id="contact" className="max-w-[1200px] mx-auto px-[52px] pb-[100px]">
         <div className="bg-[#f2edff] rounded-[16px] px-[200px] py-[100px]">
-          <h2 className="font-['Rubik',sans-serif] font-bold text-[45px] leading-[51.75px] tracking-[-0.9px] text-[#171617] text-center mb-[25px]">
-            Let's Work Together
+          <h2
+            id={ids.contactHeading}
+            ref={contactHeadingRef}
+            tabIndex={-1}
+            className="font-['Rubik',sans-serif] font-bold text-[45px] leading-[51.75px] tracking-[-0.9px] text-[#171617] text-center mb-[25px]"
+          >
+            Let&apos;s Work Together
           </h2>
-          
+
           <p className="font-['Poppins',sans-serif] text-[20px] leading-[30px] text-[#171617] mb-[25px]">
-            If you're hiring, exploring a collaboration, or have a project in mind, I'd love to hear from you. Send a message and I'll respond as soon as possible.
+            If you&apos;re hiring, exploring a collaboration, or have a project in
+            mind, I&apos;d love to hear from you. Send a message and I&apos;ll respond
+            as soon as possible.
           </p>
 
+          {/* Status region (focusable for SR announcement after submit) */}
+          <div
+            id={ids.status}
+            tabIndex={-1}
+            aria-live="polite"
+            aria-atomic="true"
+            className="sr-only"
+          >
+            {submitStatus === "success"
+              ? "Thank you for your message. I will get back to you soon."
+              : submitStatus === "error"
+              ? "There was an error submitting your message. Please try again."
+              : ""}
+          </div>
+
           {/* Contact Form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-[32px]">
-            {/* Honeypot field - hidden from users, only bots will fill it */}
-            <input
-              type="text"
-              name="honeypot"
-              value={formData.honeypot}
-              onChange={handleInputChange}
-              autoComplete="off"
-              tabIndex={-1}
-              aria-hidden="true"
-              className="absolute left-[-9999px]"
-              style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
-            />
+          <form onSubmit={handleSubmit} className="flex flex-col gap-[32px]" noValidate>
+            {/* Honeypot: hidden in a way that avoids AT/keyboard */}
+            <div hidden>
+              <label htmlFor={`hp-${reactId}`}>Do not fill this out</label>
+              <input
+                id={`hp-${reactId}`}
+                type="text"
+                name="honeypot"
+                value={formData.honeypot}
+                onChange={handleInputChange}
+                autoComplete="off"
+                tabIndex={-1}
+              />
+            </div>
+
+            {/* Error summary (optional but helpful) */}
+            {showErrorSummary && (
+              <div
+                id={ids.errorSummary}
+                role="alert"
+                className="border border-[#ec221f]/30 bg-white rounded-[8px] p-[12px]"
+              >
+                <p className="font-['Poppins',sans-serif] text-[14px] text-[#171617]">
+                  Please fix the highlighted fields below.
+                </p>
+              </div>
+            )}
 
             {/* Row 1: Name and Email */}
             <div className="flex gap-[32px]">
               <div className="flex-1">
-                <label className="flex gap-[2px] items-start mb-[6px]">
+                <label htmlFor={ids.name} className="flex gap-[2px] items-start mb-[6px]">
                   <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Name
                   </span>
@@ -251,20 +389,25 @@ export default function App() {
                   </span>
                 </label>
                 <input
+                  ref={firstFieldRef}
+                  id={ids.name}
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
-                  placeholder=""
+                  aria-invalid={Boolean(errors.name)}
+                  aria-describedby={errors.name ? `${ids.name}-error` : undefined}
+                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
                 />
                 {errors.name && (
-                  <p className="mt-[4px] text-[12px] text-[#ec221f]">{errors.name}</p>
+                  <p id={`${ids.name}-error`} className="mt-[4px] text-[12px] text-[#ec221f]">
+                    {errors.name}
+                  </p>
                 )}
               </div>
 
               <div className="flex-1">
-                <label className="flex gap-[2px] items-start mb-[6px]">
+                <label htmlFor={ids.email} className="flex gap-[2px] items-start mb-[6px]">
                   <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Email
                   </span>
@@ -273,15 +416,21 @@ export default function App() {
                   </span>
                 </label>
                 <input
+                  id={ids.email}
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
-                  placeholder=""
+                  autoComplete="email"
+                  inputMode="email"
+                  aria-invalid={Boolean(errors.email)}
+                  aria-describedby={errors.email ? `${ids.email}-error` : undefined}
+                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
                 />
                 {errors.email && (
-                  <p className="mt-[4px] text-[12px] text-[#ec221f]">{errors.email}</p>
+                  <p id={`${ids.email}-error`} className="mt-[4px] text-[12px] text-[#ec221f]">
+                    {errors.email}
+                  </p>
                 )}
               </div>
             </div>
@@ -289,23 +438,27 @@ export default function App() {
             {/* Row 2: Organisation and Reason for Contact */}
             <div className="flex gap-[32px]">
               <div className="flex-1">
-                <label className="flex gap-[2px] items-start mb-[6px]">
+                <label
+                  htmlFor={ids.organisation}
+                  className="flex gap-[2px] items-start mb-[6px]"
+                >
                   <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Organisation
                   </span>
                 </label>
                 <input
+                  id={ids.organisation}
                   type="text"
                   name="organisation"
                   value={formData.organisation}
                   onChange={handleInputChange}
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
-                  placeholder=" "
+                  autoComplete="organization"
+                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]"
                 />
               </div>
 
               <div className="flex-1">
-                <label className="flex gap-[2px] items-center mb-[6px]">
+                <label htmlFor={ids.reason} className="flex gap-[2px] items-center mb-[6px]">
                   <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                     Reason for Contact
                   </span>
@@ -315,9 +468,12 @@ export default function App() {
                 </label>
                 <div className="relative">
                   <select
+                    id={ids.reason}
                     name="reason"
                     value={formData.reason}
                     onChange={handleInputChange}
+                    aria-invalid={Boolean(errors.reason)}
+                    aria-describedby={errors.reason ? `${ids.reason}-error` : undefined}
                     className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] appearance-none pr-[40px]"
                   >
                     <option value="">Select reason</option>
@@ -327,7 +483,7 @@ export default function App() {
                     <option value="Other">Other</option>
                   </select>
                   <div className="absolute right-[14px] top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                       <path
                         d="M5 7.5L10 12.5L15 7.5"
                         stroke="#A4A7AE"
@@ -339,63 +495,71 @@ export default function App() {
                   </div>
                 </div>
                 {errors.reason && (
-                  <p className="mt-[4px] text-[12px] text-[#ec221f]">{errors.reason}</p>
+                  <p id={`${ids.reason}-error`} className="mt-[4px] text-[12px] text-[#ec221f]">
+                    {errors.reason}
+                  </p>
                 )}
               </div>
             </div>
 
             {/* Row 3: Message */}
             <div>
-              <label className="flex gap-[2px] items-center mb-[6px]">
+              <label htmlFor={ids.message} className="flex gap-[2px] items-center mb-[6px]">
                 <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
                   Message
                 </span>
-                <span className="font-['Poppins:Semi_Bold',sans-serif] font-semibold text-[14px] leading-[20px] text-[#ec221f]">
+                <span className="font-['Poppins',sans-serif] font-semibold text-[14px] leading-[20px] text-[#ec221f]">
                   *
                 </span>
               </label>
-              <div className="relative">
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  rows={6}
-                  className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[12px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] placeholder:text-[#717680] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] resize-y"
-                  placeholder=" "
-                />
-              
-              </div>
+              <textarea
+                id={ids.message}
+                name="message"
+                value={formData.message}
+                onChange={handleInputChange}
+                rows={6}
+                aria-invalid={Boolean(errors.message)}
+                aria-describedby={errors.message ? `${ids.message}-error` : undefined}
+                className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[12px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] resize-y"
+              />
               {errors.message && (
-                <p className="mt-[4px] text-[12px] text-[#ec221f]">{errors.message}</p>
+                <p id={`${ids.message}-error`} className="mt-[4px] text-[12px] text-[#ec221f]">
+                  {errors.message}
+                </p>
               )}
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="bg-[#e3ffa6] rounded-[8px] px-[16px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[19.2px] tracking-[0.48px] text-[#171617] shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18),inset_0px_-2px_0px_0px_rgba(10,13,18,0.05),0px_1px_2px_0px_rgba(10,13,18,0.05)] transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-[#e3ffa6] rounded-[8px] px-[16px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[19.2px] tracking-[0.48px] text-[#171617] shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18),inset_0px_-2px_0px_0px_rgba(10,13,18,0.05),0px_1px_2px_0px_rgba(10,13,18,0.05)] transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#171617]/30"
               disabled={isSubmitting}
+              aria-describedby={ids.status}
             >
-              {isSubmitting ? 'Submitting...' : 'Send Message'}
+              {isSubmitting ? "Submitting..." : "Send Message"}
             </button>
 
-            {/* Submit Status */}
-            {submitStatus === 'success' && (
-              <p className="mt-[10px] text-[16px] text-[#4CAF50]">Thank you for your message! I'll get back to you soon.</p>
+            {/* Visible Submit Status */}
+            {submitStatus === "success" && (
+              <p className="mt-[10px] text-[16px] text-[#4CAF50]">
+                Thank you for your message! I&apos;ll get back to you soon.
+              </p>
             )}
-            {submitStatus === 'error' && (
-              <p className="mt-[10px] text-[16px] text-[#ec221f]">There was an error submitting your message. Please try again.</p>
+            {submitStatus === "error" && (
+              <p className="mt-[10px] text-[16px] text-[#ec221f]">
+                There was an error submitting your message. Please try again.
+              </p>
             )}
           </form>
         </div>
-      </div>
+      </section>
 
       {/* Footer */}
-      <div className="max-w-[1200px] mx-auto px-[52px] pb-[50px]">
+      <footer className="max-w-[1200px] mx-auto px-[52px] pb-[50px]">
         <p className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#171617]">
           ©️ Barry Conlon 2025.
         </p>
-      </div>
+      </footer>
     </div>
   );
 }
