@@ -25,7 +25,7 @@ const FONT_POPPINS = "font-['Poppins',sans-serif]";
 
 const CONTAINER = "max-w-[1200px] mx-auto";
 const CONTAINER_X_NAV = "px-[20px] sm:px-[52px]";
-const CONTAINER_X_PAGE = "px-[52px]";
+const CONTAINER_X_PAGE = "px-[20px] min-[600px]:px-[52px]";
 
 const FOCUS_RING = cn(
   "focus:outline-none",
@@ -582,9 +582,14 @@ export default function App() {
       <main
         id="main"
         tabIndex={-1}
-        className={cn("hero", CONTAINER, CONTAINER_X_PAGE, "pt-[240px] pb-[100px]")}
+        className={cn(
+          "hero",
+          CONTAINER,
+          CONTAINER_X_PAGE,
+          "pt-[140px] min-[600px]:pt-[240px] pb-[60px] min-[600px]:pb-[100px]"
+        )}
       >
-        <div className="flex gap-[60px] items-center">
+        <div className="flex items-center gap-[60px] max-[600px]:flex-col max-[600px]:items-stretch max-[600px]:gap-[24px]">
           {/* Left Column */}
           <div className="flex-1">
             <h1
@@ -633,11 +638,11 @@ export default function App() {
           </div>
 
           {/* Right Column - Headshot */}
-          <div className="w-[419px] h-[539px] rounded-[16px] overflow-hidden shrink-0">
+          <div className="w-[419px] h-[539px] rounded-[16px] overflow-hidden shrink-0 max-[600px]:w-full max-[600px]:h-auto">
             <img
               src={imgBarryHeadshots}
               alt="Barry Conlon - Product Designer"
-              className="w-full h-[116.56%] object-cover object-center translate-y-[0] rounded-[16px]"
+              className="w-full h-full object-cover object-center rounded-[16px] max-[600px]:aspect-[4/5]"
               loading="lazy"
               decoding="async"
             />
@@ -646,8 +651,11 @@ export default function App() {
       </main>
 
       {/* Contact Section */}
-      <section id="contact" className={cn(CONTAINER, CONTAINER_X_PAGE, "pb-[100px]")}>
-        <div className="bg-[#f2edff] rounded-[16px] px-[200px] py-[100px]">
+      <section
+        id="contact"
+        className={cn(CONTAINER, CONTAINER_X_PAGE, "pb-[60px] min-[600px]:pb-[100px]")}
+      >
+        <div className="bg-[#f2edff] rounded-[16px] px-[200px] py-[100px] max-[600px]:px-[40px] max-[600px]:py-[40px]">
           <h2
             id={ids.contactHeading}
             ref={contactHeadingRef}
@@ -735,7 +743,7 @@ export default function App() {
             )}
 
             {/* Row 1 */}
-            <div className="flex gap-[32px]">
+            <div className="flex gap-[32px] max-[600px]:flex-col max-[600px]:gap-[16px]">
               <div className="flex-1">
                 <label htmlFor={ids.name} className="flex gap-[2px] items-start mb-[6px]">
                   <span className={LABEL_TEXT}>Name</span>
@@ -790,7 +798,7 @@ export default function App() {
             </div>
 
             {/* Row 2 */}
-            <div className="flex gap-[32px]">
+            <div className="flex gap-[32px] max-[600px]:flex-col max-[600px]:gap-[16px]">
               <div className="flex-1">
                 <label htmlFor={ids.organisation} className="flex gap-[2px] items-start mb-[6px]">
                   <span className={LABEL_TEXT}>Organisation</span>
