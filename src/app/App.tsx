@@ -440,7 +440,7 @@ export default function App() {
           </div>
 
           {/* Desktop links */}
-          <div className="hidden sm:flex items-center gap-[24px]">
+          <div className="hidden sm:flex items-center gap-[24px] text-[20px]">
             <NavLink
               href="https://drive.google.com/file/d/1hX3MTiuYAtmoNTTxzIND9REDPMAwJ_4Z/view?usp=sharing"
               target="_blank"
