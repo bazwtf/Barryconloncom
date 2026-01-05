@@ -510,18 +510,14 @@ export default function App() {
 
             {/* Panel */}
             <div
-              id="mobile-menu"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Mobile navigation"
-              className={cn(
-                "absolute top-0 right-0 h-full w-[86%] max-w-[360px]",
-                "bg-[#e3dfed] shadow-xl p-[20px] flex flex-col gap-[16px]"
-              )}
-              style={DOT_BG_STYLE}
+            id="mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            className="absolute top-[16px] right-[16px] w-[86%] max-w-[360px] bg-[#E2D6FF] shadow-xl rounded-[16px] p-[20px] flex flex-col gap-[16px]"
             >
               <div className="flex items-center justify-between">
-                <span className={cn(FONT_RUBIK, "font-medium text-[#171617] text-[16px] uppercase")}>
+                <span className={cn(FONT_RUBIK, "font-bold text-[#171617] text-[16px] uppercase")}>
                   Menu
                 </span>
                 <IconButton
@@ -548,7 +544,10 @@ export default function App() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  "text-[18px] px-[12px] py-[10px] bg-white/60 rounded-[12px]"
+                  FONT_RUBIK,
+                  "font-medium text-[#171617] text-[20px] uppercase text-center",
+                  "px-[12px] py-[12px] bg-white/60 rounded-[12px]",
+                  FOCUS_RING
                 )}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -564,7 +563,7 @@ export default function App() {
                 className={cn(
                   "bg-[#e3ffa6] px-[12px] py-[12px] rounded-[12px]",
                   FONT_RUBIK,
-                  "font-medium text-[#171617] text-[18px] uppercase",
+                  "font-medium text-[#171617] text-[20px] uppercase text-center",
                   "transition-transform active:scale-95 cursor-pointer",
                   FOCUS_RING_DARK
                 )}
