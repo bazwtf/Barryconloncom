@@ -6,7 +6,9 @@
     },
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+        "target": "ES5",
+    "lib": ["ES5", "ES2015", "DOM"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
