@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import svgPaths from "../../imports/svg-9zz4bups76";
-import imgBarryHeadshots from '../assets/images/f38794277b68282e48c0f1fa2968cb07117406c5.png';
+import imgBarryHeadshots from "../assets/images/f38794277b68282e48c0f1fa2968cb07117406c5.png";
 
 // Google Apps Script endpoint
 const GOOGLE_APPS_SCRIPT_URL =
