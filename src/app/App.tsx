@@ -594,8 +594,9 @@ export default function App() {
             <h1
               className={cn(
                 FONT_RUBIK,
-                "font-bold text-[56px] leading-[61.6px] tracking-[-1.12px] text-[#171617]",
-                "mb-[24px] max-w-[630px]"
+                "font-bold text-[#171617] max-w-[630px]",
+                "min-[600px]:text-[56px] min-[600px]:leading-[61.6px] min-[600px]:tracking-[-1.12px] min-[600px]:mb-[24px]",
+                "max-[599px]:text-[36px] max-[599px]:leading-[42px] max-[599px]:tracking-[-0.72px] max-[599px]:mb-[16px]"
               )}
             >
               Product Designer Who Simplifies the Complex
