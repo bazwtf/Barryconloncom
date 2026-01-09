@@ -1,10 +1,79 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from "react";
-import svgPaths from "../../imports/svg-9zz4bups76";
-import imgBarryHeadshots from "../assets/images/f38794277b68282e48c0f1fa2968cb07117406c5.png";
+import React, { useMemo, useRef, useState } from "react";
 
 // Google Apps Script endpoint
 const GOOGLE_APPS_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbxlQlDO3IzglbHL_gESH1uR3zUoY4wLcdcR7FyoRQtA9UbRRYRJR5vpit8Cs7MYYjloDA/exec";
+
+function cn(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
+}
+
+const FONT_RUBIK = "font-['Rubik',sans-serif]";
+const FONT_POPPINS = "font-['Poppins',sans-serif]";
+
+const CONTAINER = "max-w-[1200px] mx-auto";
+const CONTAINER_X_PAGE = "px-[20px] min-[600px]:px-[52px]";
+
+const FOCUS_RING = cn(
+  "focus:outline-none",
+  "focus-visible:ring-2 focus-visible:ring-[#e3ffa6]",
+  "focus-visible:ring-offset-2 focus-visible:ring-offset-[#e3dfed]"
+);
+
+const BTN_BASE = cn(
+  "transition-transform active:scale-95 cursor-pointer",
+  "disabled:opacity-50 disabled:cursor-not-allowed"
+);
+
+const BTN_PRIMARY = cn(
+  "bg-[#e3ffa6] text-[#171617]",
+  "shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18),inset_0px_-2px_0px_0px_rgba(10,13,18,0.05),0px_1px_2px_0px_rgba(10,13,18,0.05)]",
+  "hover:scale-[1.02]",
+  BTN_BASE
+);
+
+const INPUT_BASE = cn(
+  "w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px]",
+  FONT_POPPINS,
+  "text-[16px] leading-[24.8px] text-[#171617]",
+  "shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)]",
+  "focus:outline-none focus:ring-2 focus:ring-[#e3ffa6]",
+  "disabled:opacity-60"
+);
+
+const LABEL_TEXT = cn(
+  FONT_POPPINS,
+  "text-[14px] leading-[21.7px] text-[#414651]"
+);
+
+const REQUIRED_STAR = cn(
+  FONT_POPPINS,
+  "font-medium text-[14px] leading-[20px] text-[#ec221f]"
+);
+
+const ERROR_TEXT = cn("mt-[4px] text-[12px] text-[#ec221f]");
+
+function PrimaryButton({
+  className,
+  children,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      className={cn(
+        BTN_PRIMARY,
+        FONT_POPPINS,
+        "rounded-[8px] px-[16px] py-[10px] text-[16px] leading-[19.2px] tracking-[0.48px]",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#171617]/40",
+        "focus-visible:ring-offset-2 focus-visible:ring-offset-[#e3dfed]",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
 
 type EnquiryReason =
   | ""
@@ -71,7 +140,7 @@ function toUrlEncodedBody(formData: FormData): string {
   }).toString();
 }
 
-type ContactFormProps = {
+type ContactFormFieldsProps = {
   endpointUrl?: string;
   /**
    * Optional: allow parent to focus the first field after scrolling.
@@ -84,11 +153,11 @@ type ContactFormProps = {
   idPrefix: string;
 };
 
-function ContactForm({
+function ContactFormFields({
   endpointUrl = GOOGLE_APPS_SCRIPT_URL,
   firstFieldRef,
   idPrefix,
-}: ContactFormProps) {
+}: ContactFormFieldsProps) {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -230,7 +299,7 @@ function ContactForm({
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-[32px]" noValidate>
-        {/* Honeypot: hidden in a way that avoids AT/keyboard */}
+        {/* Honeypot */}
         <div hidden>
           <label htmlFor={`hp-${idPrefix}`}>Do not fill this out</label>
           <input
@@ -255,7 +324,10 @@ function ContactForm({
           >
             <p
               id={`${ids.errorSummary}-title`}
-              className="font-['Poppins',sans-serif] text-[16px] leading-[24px] text-[#171617] mb-[8px]"
+              className={cn(
+                FONT_POPPINS,
+                "text-[16px] leading-[24px] text-[#171617] mb-[8px]"
+              )}
             >
               Please correct the following:
             </p>
@@ -264,11 +336,11 @@ function ContactForm({
               {errorSummaryItems.map((item) => (
                 <li
                   key={item.field}
-                  className="font-['Poppins',sans-serif] text-[14px] text-[#171617]"
+                  className={cn(FONT_POPPINS, "text-[14px] text-[#171617]")}
                 >
                   <a
                     href={`#${item.targetId}`}
-                    className="underline focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] rounded-[6px]"
+                    className={cn("underline rounded-[6px]", FOCUS_RING)}
                     onClick={(ev) => {
                       ev.preventDefault();
                       const el = document.getElementById(item.targetId);
@@ -284,19 +356,12 @@ function ContactForm({
           </div>
         )}
 
-        {/* Row 1: Name and Email */}
-        <div className="flex gap-[32px]">
+        {/* Row 1 */}
+        <div className="flex gap-[32px] max-[600px]:flex-col max-[600px]:gap-[16px]">
           <div className="flex-1">
-            <label
-              htmlFor={ids.name}
-              className="flex gap-[2px] items-start mb-[6px]"
-            >
-              <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
-                Name
-              </span>
-              <span className="font-['Poppins',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
-                *
-              </span>
+            <label htmlFor={ids.name} className="flex gap-[2px] items-start mb-[6px]">
+              <span className={LABEL_TEXT}>Name</span>
+              <span className={REQUIRED_STAR}>*</span>
             </label>
             <input
               ref={effectiveFirstFieldRef}
@@ -310,29 +375,19 @@ function ContactForm({
               autoComplete="name"
               aria-invalid={Boolean(errors.name)}
               aria-describedby={errors.name ? `${ids.name}-error` : undefined}
-              className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] disabled:opacity-60"
+              className={cn(INPUT_BASE, "py-[10px]")}
             />
             {errors.name && (
-              <p
-                id={`${ids.name}-error`}
-                className="mt-[4px] text-[12px] text-[#ec221f]"
-              >
+              <p id={`${ids.name}-error`} className={ERROR_TEXT}>
                 {errors.name}
               </p>
             )}
           </div>
 
           <div className="flex-1">
-            <label
-              htmlFor={ids.email}
-              className="flex gap-[2px] items-start mb-[6px]"
-            >
-              <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
-                Email
-              </span>
-              <span className="font-['Poppins',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
-                *
-              </span>
+            <label htmlFor={ids.email} className="flex gap-[2px] items-start mb-[6px]">
+              <span className={LABEL_TEXT}>Email</span>
+              <span className={REQUIRED_STAR}>*</span>
             </label>
             <input
               id={ids.email}
@@ -346,29 +401,24 @@ function ContactForm({
               inputMode="email"
               aria-invalid={Boolean(errors.email)}
               aria-describedby={errors.email ? `${ids.email}-error` : undefined}
-              className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] disabled:opacity-60"
+              className={cn(INPUT_BASE, "py-[10px]")}
             />
             {errors.email && (
-              <p
-                id={`${ids.email}-error`}
-                className="mt-[4px] text-[12px] text-[#ec221f]"
-              >
+              <p id={`${ids.email}-error`} className={ERROR_TEXT}>
                 {errors.email}
               </p>
             )}
           </div>
         </div>
 
-        {/* Row 2: Organisation and Reason */}
-        <div className="flex gap-[32px]">
+        {/* Row 2 */}
+        <div className="flex gap-[32px] max-[600px]:flex-col max-[600px]:gap-[16px]">
           <div className="flex-1">
             <label
               htmlFor={ids.organisation}
               className="flex gap-[2px] items-start mb-[6px]"
             >
-              <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
-                Organisation
-              </span>
+              <span className={LABEL_TEXT}>Organisation</span>
             </label>
             <input
               id={ids.organisation}
@@ -378,21 +428,14 @@ function ContactForm({
               onChange={handleInputChange}
               disabled={isSubmitting}
               autoComplete="organization"
-              className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] disabled:opacity-60"
+              className={cn(INPUT_BASE, "py-[10px]")}
             />
           </div>
 
           <div className="flex-1">
-            <label
-              htmlFor={ids.reason}
-              className="flex gap-[2px] items-center mb-[6px]"
-            >
-              <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
-                Reason for Contact
-              </span>
-              <span className="font-['Poppins',sans-serif] font-medium text-[14px] leading-[20px] text-[#ec221f]">
-                *
-              </span>
+            <label htmlFor={ids.reason} className="flex gap-[2px] items-center mb-[6px]">
+              <span className={LABEL_TEXT}>Reason for Contact</span>
+              <span className={REQUIRED_STAR}>*</span>
             </label>
             <div className="relative">
               <select
@@ -404,7 +447,7 @@ function ContactForm({
                 disabled={isSubmitting}
                 aria-invalid={Boolean(errors.reason)}
                 aria-describedby={errors.reason ? `${ids.reason}-error` : undefined}
-                className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] appearance-none pr-[40px] disabled:opacity-60"
+                className={cn(INPUT_BASE, "py-[10px] appearance-none pr-[40px]")}
                 style={{ color: formData.reason ? "#171617" : "#717680" }}
               >
                 <option value="">Select reason</option>
@@ -414,13 +457,7 @@ function ContactForm({
                 <option value="Other">Other</option>
               </select>
               <div className="absolute right-[14px] top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  aria-hidden="true"
-                >
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                   <path
                     d="M5 7.5L10 12.5L15 7.5"
                     stroke="#A4A7AE"
@@ -432,28 +469,18 @@ function ContactForm({
               </div>
             </div>
             {errors.reason && (
-              <p
-                id={`${ids.reason}-error`}
-                className="mt-[4px] text-[12px] text-[#ec221f]"
-              >
+              <p id={`${ids.reason}-error`} className={ERROR_TEXT}>
                 {errors.reason}
               </p>
             )}
           </div>
         </div>
 
-        {/* Row 3: Message */}
+        {/* Row 3 */}
         <div>
-          <label
-            htmlFor={ids.message}
-            className="flex gap-[2px] items-center mb-[6px]"
-          >
-            <span className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#414651]">
-              Message
-            </span>
-            <span className="font-['Poppins',sans-serif] font-semibold text-[14px] leading-[20px] text-[#ec221f]">
-              *
-            </span>
+          <label htmlFor={ids.message} className="flex gap-[2px] items-center mb-[6px]">
+            <span className={LABEL_TEXT}>Message</span>
+            <span className={cn(REQUIRED_STAR, "font-semibold")}>*</span>
           </label>
           <textarea
             id={ids.message}
@@ -465,42 +492,35 @@ function ContactForm({
             disabled={isSubmitting}
             aria-invalid={Boolean(errors.message)}
             aria-describedby={errors.message ? `${ids.message}-error` : undefined}
-            className="w-full bg-white border border-[#d5d7da] rounded-[8px] px-[14px] py-[12px] font-['Poppins',sans-serif] text-[16px] leading-[24.8px] text-[#171617] shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] resize-y disabled:opacity-60"
+            className={cn(INPUT_BASE, "py-[12px] resize-y")}
           />
           {errors.message && (
-            <p
-              id={`${ids.message}-error`}
-              className="mt-[4px] text-[12px] text-[#ec221f]"
-            >
+            <p id={`${ids.message}-error`} className={ERROR_TEXT}>
               {errors.message}
             </p>
           )}
         </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="bg-[#e3ffa6] rounded-[8px] px-[16px] py-[10px] font-['Poppins',sans-serif] text-[16px] leading-[19.2px] tracking-[0.48px] text-[#171617] shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18),inset_0px_-2px_0px_0px_rgba(10,13,18,0.05),0px_1px_2px_0px_rgba(10,13,18,0.05)] transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#171617]/30"
-          disabled={isSubmitting}
-          aria-describedby={ids.status}
-        >
+        <PrimaryButton type="submit" disabled={isSubmitting} aria-describedby={ids.status}>
           {isSubmitting ? "Submitting..." : "Send Message"}
-        </button>
+        </PrimaryButton>
 
-        {/* Visible Submit Status */}
         {submitStatus === "success" && (
           <p
             ref={successMessageRef}
             tabIndex={-1}
             role="status"
             aria-live="polite"
-            className="mt-[10px] text-[16px] text-[#4CAF50]"
+            className={cn("mt-[10px] text-[16px] text-[#4CAF50]", FONT_POPPINS)}
           >
             Thank you for your message! I&apos;ll get back to you soon.
           </p>
         )}
         {submitStatus === "error" && (
-          <p role="alert" className="mt-[10px] text-[16px] text-[#ec221f]">
+          <p
+            role="alert"
+            className={cn("mt-[10px] text-[16px] text-[#ec221f]", FONT_POPPINS)}
+          >
             There was an error submitting your message. Please try again.
           </p>
         )}
@@ -509,188 +529,51 @@ function ContactForm({
   );
 }
 
-export default function App() {
-  const [isScrolled, setIsScrolled] = useState(false);
+type ContactFormProps = {
+  headingId: string;
+  headingRef?: React.RefObject<HTMLHeadingElement>;
+  firstFieldRef?: React.RefObject<HTMLInputElement>;
+  idPrefix: string;
+};
 
-  // Used for stable ids and focus management
-  const reactId = useId();
-  const contactHeadingRef = useRef<HTMLHeadingElement | null>(null);
-  const firstFieldRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    let ticking = false;
-
-    const handleScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        setIsScrolled(window.scrollY > 50);
-        ticking = false;
-      });
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // initialize
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToContact = () => {
-    const contactSection = document.getElementById("contact");
-    contactSection?.scrollIntoView({ behavior: "smooth" });
-
-    // After scrolling, move focus to heading or first field for keyboard users.
-    window.setTimeout(() => {
-      (contactHeadingRef.current ?? firstFieldRef.current)?.focus();
-    }, 350);
-  };
-
-  const contactHeadingId = useMemo(
-    () => `contact-heading-${reactId}`,
-    [reactId]
-  );
-
+export default function ContactForm({
+  headingId,
+  headingRef,
+  firstFieldRef,
+  idPrefix,
+}: ContactFormProps) {
   return (
-    <div
-      className="bg-[#e3dfed] min-h-screen relative"
-      style={{
-        backgroundImage:
-          "radial-gradient(circle, rgba(23, 22, 23, 0.15) 1px, transparent 1px)",
-        backgroundSize: "24px 24px",
-      }}
+    <section
+      id="contact"
+      className={cn(CONTAINER, CONTAINER_X_PAGE, "pb-[60px] min-[600px]:pb-[100px]")}
     >
-      {/* Navigation */}
-      <nav
-        className={`main-navigation fixed top-0 left-0 right-0 z-50 bg-[#e3dfed]/95 backdrop-blur-sm transition-all duration-300 ${
-          isScrolled ? "shadow-md" : ""
-        }`}
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, rgba(23, 22, 23, 0.15) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-        aria-label="Primary"
-      >
-        <div
-          className={`max-w-[1200px] mx-auto px-[52px] flex items-center justify-between transition-all duration-300 ${
-            isScrolled ? "py-[23.5px]" : "py-[47px]"
-          }`}
+      <div className="bg-[#f2edff] rounded-[16px] px-[200px] py-[100px] max-[600px]:px-[40px] max-[600px]:py-[40px]">
+        <h2
+          id={headingId}
+          ref={headingRef}
+          tabIndex={-1}
+          className={cn(
+            FONT_RUBIK,
+            "font-bold text-[45px] leading-[51.75px] tracking-[-0.9px] text-[#171617]",
+            "text-center mb-[25px]"
+          )}
         >
-          {/* Logo */}
-          <div
-            className={`transition-all duration-300 ${
-              isScrolled ? "h-[56.55px] w-[50.7px]" : "h-[87px] w-[78px]"
-            }`}
-            aria-hidden="true"
-          >
-            <svg
-              className="block size-full"
-              fill="none"
-              preserveAspectRatio="none"
-              viewBox="0 0 78 87"
-            >
-              <path d={svgPaths.p2889000} fill="#171617" />
-            </svg>
-          </div>
+          Let&apos;s Work Together
+        </h2>
 
-          {/* Navigation Links */}
-          <div className="nav-item flex items-center gap-[24px]">
-            <a
-              href="https://drive.google.com/file/d/1hX3MTiuYAtmoNTTxzIND9REDPMAwJ_4Z/view?usp=sharing"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-opacity hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-[#e3ffa6] rounded-[8px]"
-            >
-              Resume
-            </a>
-            <button
-              type="button"
-              onClick={scrollToContact}
-              className="nav-button bg-[#e3ffa6] px-[20px] py-[12px] rounded-[12px] font-['Rubik',sans-serif] font-medium text-[#171617] text-[20px] uppercase transition-transform hover:scale-105 active:scale-95 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#171617]/30"
-            >
-              Contact me
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <main className="hero max-w-[1200px] mx-auto px-[52px] pt-[240px] pb-[100px]">
-        <div className="flex gap-[60px] items-center">
-          {/* Left Column - Content */}
-          <div className="flex-1">
-            <h1 className="font-['Rubik',sans-serif] font-bold text-[56px] leading-[61.6px] tracking-[-1.12px] text-[#171617] mb-[24px] max-w-[630px]">
-              Product Designer Who Simplifies the Complex
-            </h1>
-
-            <p className="font-['Poppins',sans-serif] text-[20px] leading-[30px] text-[#171617] mb-[36px] max-w-[611px]">
-              Building accessible, user-centred products by connecting design,
-              engineering, and business around what matters.
-            </p>
-
-            {/* Skills Tags */}
-            <ul className="tag-list flex flex-wrap gap-[18px] max-w-[611px]">
-              {[
-                "A11y Consultant",
-                "Agile Methodologies",
-                "Prototyping",
-                "UI Design",
-                "UX Design",
-                "UX Research",
-                "Workshop Facilitation",
-              ].map((skill) => (
-                <li
-                  key={skill}
-                  className="bg-[#e3ffa6] px-[12px] py-[12px] rounded-[12px]"
-                >
-                  <span className="font-['Poppins',sans-serif] text-[16px] leading-[19.748px] tracking-[0.48px] text-[#171617] whitespace-nowrap">
-                    {skill}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Right Column - Headshot */}
-          <div className="w-[419px] h-[539px] rounded-[16px] overflow-hidden shrink-0">
-            <img
-              src={imgBarryHeadshots}
-              alt="Barry Conlon - Product Designer"
-              className="w-full h-[116.56%] object-cover object-center translate-y-[0] rounded-[16px]"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-        </div>
-      </main>
-
-      {/* Contact Section */}
-      <section id="contact" className="max-w-[1200px] mx-auto px-[52px] pb-[100px]">
-        <div className="bg-[#f2edff] rounded-[16px] px-[200px] py-[100px]">
-          <h2
-            id={contactHeadingId}
-            ref={contactHeadingRef}
-            tabIndex={-1}
-            className="font-['Rubik',sans-serif] font-bold text-[45px] leading-[51.75px] tracking-[-0.9px] text-[#171617] text-center mb-[25px]"
-          >
-            Let&apos;s Work Together
-          </h2>
-
-          <p className="font-['Poppins',sans-serif] text-[20px] leading-[30px] text-[#171617] mb-[25px]">
-            If you&apos;re hiring, exploring a collaboration, or have a project in
-            mind, I&apos;d love to hear from you. Send a message and I&apos;ll respond
-            as soon as possible.
-          </p>
-
-          <ContactForm idPrefix={reactId} firstFieldRef={firstFieldRef} />
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="max-w-[1200px] mx-auto px-[52px] pb-[50px]">
-        <p className="font-['Poppins',sans-serif] text-[14px] leading-[21.7px] text-[#171617]">
-          ©️ Barry Conlon 2025.
+        <p
+          className={cn(
+            FONT_POPPINS,
+            "text-[20px] leading-[30px] text-[#171617] mb-[25px]"
+          )}
+        >
+          If you&apos;re hiring, exploring a collaboration, or have a project in
+          mind, I&apos;d love to hear from you. Send a message and I&apos;ll respond as
+          soon as possible.
         </p>
-      </footer>
-    </div>
+
+        <ContactFormFields idPrefix={idPrefix} firstFieldRef={firstFieldRef} />
+      </div>
+    </section>
   );
 }
