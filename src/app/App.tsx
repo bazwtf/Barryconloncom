@@ -201,6 +201,7 @@ export default function App() {
               href="https://drive.google.com/file/d/1hX3MTiuYAtmoNTTxzIND9REDPMAwJ_4Z/view?usp=sharing"
               target="_blank"
               rel="noopener noreferrer"
+              className="hover:underline hover:font-semibold"
             >
               Resume
             </NavLink>
@@ -215,7 +216,7 @@ export default function App() {
                 "bg-[#e3ffa6] px-[20px] py-[12px] rounded-[12px]",
                 FONT_RUBIK,
                 "font-medium text-[#171617] text-[20px] uppercase",
-                "transition-transform hover:scale-105 active:scale-95 cursor-pointer",
+                "transition-transform hover:scale-105 active:scale-95 cursor-pointer hover:font-semibold",
                 FOCUS_RING_DARK
               )}
             >
@@ -303,6 +304,7 @@ export default function App() {
                   FONT_RUBIK,
                   "font-medium text-[#171617] text-[20px] uppercase text-center",
                   "px-[12px] py-[12px] bg-white/60 rounded-[12px]",
+                  "hover:underline hover:font-semibold",
                   FOCUS_RING
                 )}
                 onClick={() => setIsMobileMenuOpen(false)}
@@ -320,7 +322,7 @@ export default function App() {
                   "bg-[#e3ffa6] px-[12px] py-[12px] rounded-[12px]",
                   FONT_RUBIK,
                   "font-medium text-[#171617] text-[20px] uppercase text-center",
-                  "transition-transform active:scale-95 cursor-pointer",
+                  "transition-transform active:scale-95 cursor-pointer hover:font-semibold",
                   FOCUS_RING_DARK
                 )}
               >
