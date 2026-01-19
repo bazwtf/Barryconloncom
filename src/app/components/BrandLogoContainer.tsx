@@ -18,6 +18,7 @@ import imgSundayPost from "@/assets/images/brand logos/sunday post.png";
 import imgTheCourier from "@/assets/images/brand logos/the courier.png";
 import imgThePeoplesFriend from "@/assets/images/brand logos/the peoples friend.png";
 import imgThunderbirdsAreGo from "@/assets/images/brand logos/thunderbirds are go.png";
+import imgStylist from "@/assets/images/brand logos/stylist.png";
 import { cn } from "@/app/components/ui/utils";
 import { CONTAINER, CONTAINER_X_PAGE, FONT_RUBIK } from "./sectionTokens";
 
@@ -55,6 +56,7 @@ const LOGOS: BrandLogo[] = [
   { key: "health-and-wellbeing", alt: "Health and Wellbeing", src: imgHealthAndWellbeing },
   { key: "the-dandy", alt: "The Dandy", src: imgDandy },
   { key: "thunderbirds-are-go", alt: "Thunderbirds Are Go", src: imgThunderbirdsAreGo },
+  { key: "stylist", alt: "Stylist", src: imgStylist },
 ];
 
 const LOGO_IMAGE_CLASS = "max-h-[70px] max-w-[150px] w-auto h-auto object-contain";
