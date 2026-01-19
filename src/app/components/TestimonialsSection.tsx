@@ -6,6 +6,11 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { cn } from "@/app/components/ui/utils";
 import { CONTAINER, CONTAINER_X_PAGE, FONT_POPPINS, FONT_RUBIK } from "./sectionTokens";
+import imgRobertP from "@/assets/images/testimonial photos/1705360118043.jpg";
+import imgSanderD from "@/assets/images/testimonial photos/1584180422920.jpg";
+import imgDaleM from "@/assets/images/testimonial photos/1742133263321.jpg";
+import imgLiamL from "@/assets/images/testimonial photos/1516879954634.jpg";
+import imgCameronC from "@/assets/images/testimonial photos/1689546648492.jpg";
 
 const CONTROL_BUTTON_CLASS = cn(
   "group flex h-10 w-10 items-center justify-center rounded-full",
@@ -57,8 +62,7 @@ const DEFAULT_TESTIMONIALS: TestimonialCardProps[] = [
     project: "Worked together on Digital Product Development",
     quote:
       "I worked with Barry for well over a decade at DC Thomson, in various product squads and departments throughout that time, and he always stood out as a deeply talented, reliable, supportive and empathetic presence in the team. His attention to detail is second to none, as is his conscientious and considered approach to everything he does. His commitment to the accessibility and equity of his design work is remarkable, and has left a lasting (and positive) mark on my own UI and UX design ethos. In addition to his design, UX and communication skills, Barry brings a genuine warmth, wit, and intelligence to any group that he finds himself in. He is a joy to work with, and has been a good friend to me over the years.",
-    imageUrl:
-      "src/assets/images/testimonial photos/1705360118043.jpg",
+    imageUrl: imgRobertP,
   },
   {
     name: "Sander D.",
@@ -67,8 +71,7 @@ const DEFAULT_TESTIMONIALS: TestimonialCardProps[] = [
     project: "Worked together on Digital Product Development",
     quote:
       "Sometimes you need a strong UX to strengthen those user journeys and sometimes you need someone confident to bring a fresh perspective from the context of extensive experience. Barry is that person. Passionate about building the best experiences for the people using the products and with the skills to deliver them from start to finish. All around great guy and friend.",
-    imageUrl:
-      "src/assets/images/testimonial photos/1584180422920.jpg",
+    imageUrl: imgSanderD,
   },
   {
     name: "Dale M.",
@@ -77,8 +80,7 @@ const DEFAULT_TESTIMONIALS: TestimonialCardProps[] = [
     project: "Worked together on relaunching the Energy Voice brand",
     quote:
       "Barry is rock solid: always keen to iterate and improve designs, be open and candid and just an overall pleasure to work alongside! A valuable asset to any product team and a warm, genuine colleague. \nI worked closely with Barry on the energy brands at DC Thomson, and we engaged in a collaborative process that elevated the brands, adapting to a breakneck pace of change while maintaining extremely polished products and user experience.",
-    imageUrl:
-      "src/assets/images/testimonial photos/1742133263321.jpg",
+    imageUrl: imgDaleM,
   },
   {
     name: "Liam L.",
@@ -87,8 +89,7 @@ const DEFAULT_TESTIMONIALS: TestimonialCardProps[] = [
     project: "Worked together in the Energy brands product squad",
     quote:
       "It goes without saying that Barry's skill as designer is exceptional. Nevertheless, that's easy to spot and his fantastic ability would be easy to identify from even a small sample of the work he has done and his portfolio. However what may be not be as visible from the outside, and what has proved invaluable as a software engineer while working alongside Barry, along with his amazing design work, is his ability to use his experience as a developer and expertise in User Experience to build solutions that not only perform highly from a conversion perspective and business use. But also, are formatted and delivered in a way that is clear for engineers on how to develop and build the product quickly and to a high level. Barry is one you can lean on and get advice from when developing all manners of products and will always give the feedback you need at all stages across a products life cycle. Literally the perfect colleague as a Designer. couldn't recommend more.",
-    imageUrl:
-      "src/assets/images/testimonial photos/1516879954634.jpg",
+    imageUrl: imgLiamL,
   },
   {
     name: "Cameron C.",
@@ -97,8 +98,7 @@ const DEFAULT_TESTIMONIALS: TestimonialCardProps[] = [
     project: "Worked together on Digital Product Development",
     quote:
       "I had the pleasure of working alongside Barry in multidisciplinary squads during my time at DC Thomson. He is an extremely capable professional with excellent communication skills. Barry consistently translated complex concepts and solutions into clear, engaging presentations that were easy for the team to understand and apply. As a team player, Barry was both collaborative and proactive—regularly championing new initiatives and ensuring our products were usable and accessible for all customers. His contributions always strengthened the team and the outcomes of our work. Barry was an outstanding colleague, and I would gladly work with him again. I strongly recommend him for any role that calls for a personable, conscientious, and highly capable individual.",
-    imageUrl:
-      "src/assets/images/testimonial photos/1689546648492.jpg",
+    imageUrl: imgCameronC,
   },
 ];
 
