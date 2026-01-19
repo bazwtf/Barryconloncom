@@ -425,7 +425,7 @@ export default function App() {
       {/* Footer */}
       <footer className={cn(CONTAINER, CONTAINER_X_PAGE, "pb-[50px]")}>
         <p className={cn(FONT_POPPINS, "text-[14px] leading-[21.7px] text-[#171617]")}>
-          ©️ Barry Conlon 2025.
+          ©️ Barry Conlon {new Date().getFullYear()}.
         </p>
       </footer>
     </div>
