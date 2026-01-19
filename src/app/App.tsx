@@ -3,6 +3,7 @@ import svgPaths from "../imports/svg-9zz4bups76";
 import imgBarryHeadshots from "@/assets/f38794277b68282e48c0f1fa2968cb07117406c5.png";
 import BrandLogoContainer from "@/app/components/BrandLogoContainer";
 import ContactForm from "@/app/components/ContactForm";
+import TestimonialsSection from "@/app/components/TestimonialsSection";
 
 /* --------------------------------- utils --------------------------------- */
 
@@ -217,6 +218,7 @@ export default function App() {
                 FONT_RUBIK,
                 "font-medium text-[#171617] text-[20px] uppercase",
                 "transition-transform hover:scale-105 active:scale-95 cursor-pointer hover:font-semibold",
+                "hover:bg-[#B2DB00]",
                 FOCUS_RING_DARK
               )}
             >
@@ -323,6 +325,7 @@ export default function App() {
                   FONT_RUBIK,
                   "font-medium text-[#171617] text-[20px] uppercase text-center",
                   "transition-transform active:scale-95 cursor-pointer hover:font-semibold",
+                  "hover:bg-[#B2DB00]",
                   FOCUS_RING_DARK
                 )}
               >
@@ -343,7 +346,7 @@ export default function App() {
           "hero",
           CONTAINER,
           CONTAINER_X_PAGE,
-          "pt-[140px] min-[600px]:pt-[240px] pb-[60px] min-[600px]:pb-[100px]"
+          "pt-[140px] min-[600px]:pt-[240px] pb-[60px] min-[600px]:pb-[100px] mb-[100px]"
         )}
       >
         <div className="flex items-center gap-[60px] max-[600px]:flex-col max-[600px]:items-stretch max-[600px]:gap-[24px]">
@@ -409,6 +412,8 @@ export default function App() {
       </main>
 
       <BrandLogoContainer />
+
+      <TestimonialsSection />
 
       <ContactForm
         headingId={contactHeadingId}

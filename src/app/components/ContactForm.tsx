@@ -27,8 +27,8 @@ const BTN_BASE = cn(
 
 const BTN_PRIMARY = cn(
   "bg-[#e3ffa6] text-[#171617]",
-  "shadow-[inset_0px_0px_0px_1px_rgba(10,13,18,0.18),inset_0px_-2px_0px_0px_rgba(10,13,18,0.05),0px_1px_2px_0px_rgba(10,13,18,0.05)]",
-  "hover:scale-[1.02]",
+  "shadow-[inset_0px_-2px_0px_0px_rgba(10,13,18,0.05),0px_1px_2px_0px_rgba(10,13,18,0.05)]",
+  "hover:scale-[1.02] hover:bg-[#B2DB00] hover:font-semibold",
   BTN_BASE
 );
 
@@ -545,9 +545,13 @@ export default function ContactForm({
   return (
     <section
       id="contact"
-      className={cn(CONTAINER, CONTAINER_X_PAGE, "pb-[60px] min-[600px]:pb-[100px]")}
+      className={cn(
+        CONTAINER,
+        CONTAINER_X_PAGE,
+        "pb-0 mb-[100px]"
+      )}
     >
-      <div className="bg-[#f2edff] rounded-[16px] px-[200px] py-[100px] max-[600px]:px-[40px] max-[600px]:py-[40px]">
+      <div className="bg-[var(--card-background)] rounded-[16px] px-[200px] py-[100px] max-[600px]:px-[40px] max-[600px]:py-[40px]">
         <h2
           id={headingId}
           ref={headingRef}

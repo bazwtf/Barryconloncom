@@ -18,14 +18,14 @@ import imgSundayPost from "@/assets/images/brand logos/sunday post.png";
 import imgTheCourier from "@/assets/images/brand logos/the courier.png";
 import imgThePeoplesFriend from "@/assets/images/brand logos/the peoples friend.png";
 import imgThunderbirdsAreGo from "@/assets/images/brand logos/thunderbirds are go.png";
+import { cn } from "@/app/components/ui/utils";
+import { CONTAINER, CONTAINER_X_PAGE, FONT_RUBIK } from "./sectionTokens";
 
-function cn(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ");
-}
-
-const FONT_RUBIK = "font-['Rubik',sans-serif]";
-const CONTAINER = "max-w-[1200px] mx-auto";
-const CONTAINER_X_PAGE = "px-[20px] min-[600px]:px-[52px]";
+type BrandLogo = {
+  key: string;
+  alt: string;
+  src: string;
+};
 
 function LogoCard({ children }: { children: React.ReactNode }) {
   return (
@@ -35,7 +35,7 @@ function LogoCard({ children }: { children: React.ReactNode }) {
   );
 }
 
-const LOGOS = [
+const LOGOS: BrandLogo[] = [
   { key: "the-peoples-friend", alt: "The People's Friend", src: imgThePeoplesFriend },
   { key: "evening-express", alt: "Evening Express", src: imgEveningExpress },
   { key: "dc-thomson", alt: "DC Thomson", src: imgDcThomson },
@@ -59,11 +59,22 @@ const LOGOS = [
 
 const LOGO_IMAGE_CLASS = "max-h-[70px] max-w-[150px] w-auto h-auto object-contain";
 
+const renderLogoCards = (keyPrefix: string) =>
+  LOGOS.map(({ key, alt, src }) => (
+    <LogoCard key={`${keyPrefix}${key}`}>
+      <img alt={alt} src={src} className={LOGO_IMAGE_CLASS} />
+    </LogoCard>
+  ));
+
 export default function BrandLogoContainer() {
   return (
     <section
-      id="social-proof"
-      className={cn(CONTAINER, CONTAINER_X_PAGE, "pb-[60px] min-[600px]:pb-[100px]")}
+      id="brand-icons"
+      className={cn(
+        CONTAINER,
+        CONTAINER_X_PAGE,
+        "pb-[60px] min-[600px]:pb-[100px] mb-[100px]"
+      )}
     >
       <div className="flex flex-col gap-[24px]">
         <div className="flex flex-col gap-[12px]">
@@ -84,20 +95,12 @@ export default function BrandLogoContainer() {
         </div>
 
         <div className="hidden md:flex flex-wrap gap-x-4 gap-y-[6px] items-start justify-between">
-          {LOGOS.map(({ key, alt, src }) => (
-            <LogoCard key={key}>
-              <img alt={alt} src={src} className={LOGO_IMAGE_CLASS} />
-            </LogoCard>
-          ))}
+          {renderLogoCards("desktop-")}
         </div>
 
         <div className="md:hidden overflow-x-auto">
           <div className="grid grid-flow-col auto-cols-max grid-rows-3 gap-2 pb-4">
-            {LOGOS.map(({ key, alt, src }) => (
-              <LogoCard key={`mobile-${key}`}>
-                <img alt={alt} src={src} className={LOGO_IMAGE_CLASS} />
-              </LogoCard>
-            ))}
+            {renderLogoCards("mobile-")}
           </div>
         </div>
       </div>

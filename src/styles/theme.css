@@ -2,6 +2,7 @@
 
 :root {
   --font-size: 16px;
+  --card-background: #f2edff;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;
@@ -48,6 +49,22 @@
   100% {
     transform: translateX(-50%);
   }
+}
+
+.testimonials-slider .slick-track {
+  display: flex;
+}
+
+.testimonials-slider .slick-slide {
+  height: auto;
+}
+
+.testimonials-slider .slick-slide > div {
+  height: 100%;
+}
+
+.testimonials-slider .slick-slide:first-child .testimonial-card {
+  padding-left: 0;
 }
 
 .dark {
