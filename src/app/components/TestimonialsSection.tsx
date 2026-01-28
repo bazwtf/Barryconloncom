@@ -8,6 +8,7 @@ import { cn } from "@/app/components/ui/utils";
 import { CONTAINER, CONTAINER_X_PAGE, FONT_POPPINS, FONT_RUBIK } from "./sectionTokens";
 import imgRobertP from "@/assets/images/testimonial photos/1705360118043.jpg";
 import imgSanderD from "@/assets/images/testimonial photos/1584180422920.jpg";
+import imgSharonC from "@/assets/images/testimonial photos/1739277139947.jpg";
 import imgDaleM from "@/assets/images/testimonial photos/1742133263321.jpg";
 import imgLiamL from "@/assets/images/testimonial photos/1516879954634.jpg";
 import imgCameronC from "@/assets/images/testimonial photos/1689546648492.jpg";
@@ -65,19 +66,28 @@ const DEFAULT_TESTIMONIALS: TestimonialCardProps[] = [
     imageUrl: imgRobertP,
   },
   {
+    name: "Sharon C.",
+    role: "Senior Insight Manager",
+    company: "DC Thomson",
+    project: "Collaborated on energy sector product research",
+    quote:
+      "I've worked with Barry on multiple UX research projects over the years, and he's consistently impressive. He combines his design expertise with strong research skills, running user tests and turning insights into clear, concise reports. Collaborative, thoughtful, and results-drive, he's a huge asset to any team.",
+    imageUrl: imgSanderD,
+  },
+  {
     name: "Sander D.",
     role: "Senior Engineer",
     company: "DC Thomson",
     project: "Worked together on Digital Product Development",
     quote:
       "Sometimes you need a strong UX to strengthen those user journeys and sometimes you need someone confident to bring a fresh perspective from the context of extensive experience. Barry is that person. Passionate about building the best experiences for the people using the products and with the skills to deliver them from start to finish. All around great guy and friend.",
-    imageUrl: imgSanderD,
+    imageUrl: imgSharonC,
   },
   {
     name: "Dale M.",
     role: "Digital Content Creator",
     company: "DC Thomson",
-    project: "Worked together on relaunching the Energy Voice brand",
+    project: "Collaborated on relaunching the Energy Voice brand",
     quote:
       "Barry is rock solid: always keen to iterate and improve designs, be open and candid and just an overall pleasure to work alongside! A valuable asset to any product team and a warm, genuine colleague. \nI worked closely with Barry on the energy brands at DC Thomson, and we engaged in a collaborative process that elevated the brands, adapting to a breakneck pace of change while maintaining extremely polished products and user experience.",
     imageUrl: imgDaleM,
