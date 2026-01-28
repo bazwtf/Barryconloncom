@@ -72,7 +72,7 @@ const DEFAULT_TESTIMONIALS: TestimonialCardProps[] = [
     project: "Collaborated on energy sector product research",
     quote:
       "I've worked with Barry on multiple UX research projects over the years, and he's consistently impressive. He combines his design expertise with strong research skills, running user tests and turning insights into clear, concise reports. Collaborative, thoughtful, and results-drive, he's a huge asset to any team.",
-    imageUrl: imgSanderD,
+    imageUrl: imgSharonC,
   },
   {
     name: "Sander D.",
@@ -81,7 +81,7 @@ const DEFAULT_TESTIMONIALS: TestimonialCardProps[] = [
     project: "Worked together on Digital Product Development",
     quote:
       "Sometimes you need a strong UX to strengthen those user journeys and sometimes you need someone confident to bring a fresh perspective from the context of extensive experience. Barry is that person. Passionate about building the best experiences for the people using the products and with the skills to deliver them from start to finish. All around great guy and friend.",
-    imageUrl: imgSharonC,
+    imageUrl: imgSanderD,
   },
   {
     name: "Dale M.",
